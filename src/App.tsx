@@ -4,8 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Users, Play, RotateCcw, Trash2, UserPlus, CheckCircle2, History, ArrowLeft, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Plus, Users, Play, RotateCcw, Trash2, UserPlus, CheckCircle2, History, ArrowLeft, Loader2, GripVertical } from 'lucide-react';
+import { motion, AnimatePresence, Reorder } from 'motion/react';
 import { db } from './firebase';
 import { 
   collection, 
@@ -182,6 +182,15 @@ export default function App() {
         players: currentSession.players.filter(p => p.id !== id)
       });
       setSelectedIds(prev => prev.filter(pId => pId !== id));
+    }
+  };
+
+  const handleReorderMatches = async (newMatches: Match[]) => {
+    if (currentSession) {
+      await updateCurrentSession({
+        ...currentSession,
+        matches: newMatches
+      });
     }
   };
 
@@ -557,32 +566,41 @@ export default function App() {
                 {currentSession.matches.length === 0 ? (
                   <p className="text-sm text-slate-400 text-center py-4 italic">ยังไม่มีประวัติการเล่น</p>
                 ) : (
-                  currentSession.matches.map((match, index) => (
-                    <div key={match.id} className="p-3 rounded-lg bg-slate-50 border border-slate-100 group relative">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-2">
-                          <span className="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded min-w-[20px] text-center">
-                            {currentSession.matches.length - index})
-                          </span>
-                          {new Date(match.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        <button 
-                          onClick={() => deleteMatch(match.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-all"
-                          title="ลบแมตช์นี้"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {match.players.map((name, i) => (
-                          <span key={i} className="text-xs bg-white px-2 py-1 rounded border border-slate-200">
-                            {name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))
+                  <Reorder.Group axis="y" values={currentSession.matches} onReorder={handleReorderMatches} className="space-y-3">
+                    {currentSession.matches.map((match, index) => (
+                      <Reorder.Item 
+                        key={match.id} 
+                        value={match} 
+                        className="p-3 rounded-lg bg-slate-50 border border-slate-100 group relative cursor-grab active:cursor-grabbing hover:border-emerald-200 transition-colors"
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center gap-2">
+                            <GripVertical className="w-4 h-4 text-slate-300 group-hover:text-slate-400" />
+                            <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-2">
+                              <span className="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded min-w-[20px] text-center">
+                                {currentSession.matches.length - index})
+                              </span>
+                              {new Date(match.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <button 
+                            onClick={() => deleteMatch(match.id)}
+                            className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-all"
+                            title="ลบแมตช์นี้"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-1 pl-6">
+                          {match.players.map((name, i) => (
+                            <span key={i} className="text-xs bg-white px-2 py-1 rounded border border-slate-200">
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      </Reorder.Item>
+                    ))}
+                  </Reorder.Group>
                 )}
               </div>
             </div>
