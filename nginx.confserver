@@ -1,0 +1,11 @@
+server {
+    listen 8080;
+    server_name localhost;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        # บรรทัดนี้สำคัญมากสำหรับ React/Vite เพื่อไม่ให้เกิด Error 404 เวลา Refresh หน้าเว็บ
+        try_files $uri $uri/ /index.html;
+    }
+}

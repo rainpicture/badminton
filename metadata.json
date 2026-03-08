@@ -1,0 +1,5 @@
+{
+  "name": "Badminton Match Maker",
+  "description": "A tool to manage badminton player rotations and track play counts for fair matching.",
+  "requestFramePermissions": []
+}
